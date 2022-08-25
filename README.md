@@ -6,6 +6,8 @@ The entropy map is defined by a chroma, saturation, luminance shift from bright 
 
 Where bright vibrant green pixels represent the original image pixels with a high relative likelyhood (by color), thus low selection entropy, and dark dull red pixels represent the original image pixels with the lowest relative likelyhood.
 
+Project created for an example on my website at [howdytaylor.com](https://howdytaylor.com)
+
 This project was kickstarted with a Cloudflare worker template.
 
 ## How To Use
