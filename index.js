@@ -10,6 +10,7 @@ addEventListener('fetch', event => {
 })
 async function handleRequest(request) {
     if(request.method == 'OPTIONS'){
+		// CORS Stuff
 		return new Response('Ok', {
 			headers: { 
 				...corsHeaders,
@@ -17,24 +18,31 @@ async function handleRequest(request) {
 			},
 		})
 	}else{
+		// The basic idea here is to determine the color distribution of the input image
 		const pixMap = new Map();
 		const targetPixMap = new Map();
 
+		// Data is provided in ImageData.data format
+		// NTS: request.body is a ReadableStream which isn't a ReadableStream...
+		// NTS: This isn't something we did, it's a Cloudflare behavior.
+		// NTS: Yes, Cloudflare is using Non-Standard Behaviors
 		var data = new Uint8Array(await request.arrayBuffer())
 		
+		// Create map of color dist
 		for (let i = 0; i < data.length; i += 4) {
 			addToMap(data[i],  data[i+1], data[i+2], data[i+3])
 		}
-		var pixDist = [];
 
-		var uniqueDistCounts = new Set();
+		// Create array of color dist
+		var pixDist = [];
 		pixMap.forEach((value, key)=>{
-			uniqueDistCounts.add(value)
 			pixDist.push({
 				name: key,
 				count: value
 			})
 		})
+
+		// Sort desc
 		pixDist.sort((a, b)=>{
 			if(a.count > b.count){
 				return -1;
@@ -45,6 +53,7 @@ async function handleRequest(request) {
 			}
 		})
 
+		// Determine what output color we should use for each color in the image
 		var hslMap = createHSLMap(pixDist.length)
 		pixDist.forEach((value, index)=>{
 			let {h, s, l} = hslMap[index];
@@ -53,6 +62,7 @@ async function handleRequest(request) {
 			targetPixMap.set(value.name, rgbVal)
 		})
 	
+		// Create an output image with this output/target map in ImageData.data format
 		for (let i = 0; i < data.length; i += 4) {
 			let target = targetPixMap.get(`${data[i]} ${data[i+1]} ${data[i+2]} ${data[i+3]}`)
 			data[i] = target[0];
