@@ -26,7 +26,7 @@ npm install -g wrangler
 npm install
 ```
 
-To start the
+To start the worker locally run:
 ```
 wrangler dev
 ```
